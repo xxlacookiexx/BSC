@@ -1,0 +1,46 @@
+select distinct t.region,
+                t.reg_desc,
+                t.auth_no,
+                t.mem_no,
+                t.mbr_name,
+                t.dob,
+                t.plan_type,
+                t.diag_cd,
+                t.diag_desc,
+                t.line_no,
+                t.cpt,
+                t.procedure,
+                t.expire_dt,
+                t.pcp,
+                t.pcp_name,
+                t.pcp_address,
+                t.pcp_city,
+                t.pcp_zip,
+                t.pcp_phone,
+                t.provider,
+                t.provider_name,
+                t.prov_address,
+                t.prov_city,
+                t.prov_zip,
+                t.prov_phone,
+                concat(concat(t.prov_specialty, ' - '), spec_cd.description) SPEC_DESC,
+                t.request_dt,
+                t.enter_dt,
+                t.status,
+                t.exp_dt,
+                t.decision_dt,
+                case
+                  when cl.document is not null then
+                   'Y'
+                  else
+                   'N'
+                End as "CLAIMS (Y/N)"
+
+  from reg310 t
+
+  left join careware.claims cl on t.auth_no =
+                                  concat(concat(cl.auth_no, '*'), cl.type)
+  left join careware.specialty_codes spec_cd on t.prov_specialty =
+                                                spec_cd.spec_cd
+
+ order by t.mem_no, t.request_dt, t.auth_no, t.line_no

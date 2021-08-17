@@ -1,0 +1,63 @@
+drop table reg310;
+create table reg310 
+as (select DISTINCT aut.region,
+                             reg.description reg_desc,
+                             aut.auth_no,
+                             aut.mem_no,
+                             concat(concat(member.fname, ' '), member.lname) MBR_NAME,
+                             member.birth_dt DOB,
+                             case
+                               when aut.lob in ('100', '700') then
+                                'MCAL'
+                               when aut.lob in ('120', '720') then
+                                'CMC'
+                               else
+                                'MCARE'
+                             end as "PLAN_TYPE",
+                             aut.diag_cd,
+                             diag.description DIAG_DESC,
+                             diag.ver_no,
+                             aut_proc.line_no,
+                             aut_proc.proc_cd CPT,
+                             proc.description Procedure,
+                             aut.expire_dt,
+                             aut.prov_id PCP,
+                             concat(concat(prov.lname, ' '), prov.fname) PCP_Name,
+                             prov.address1 PCP_Address,
+                             prov.city PCP_city,
+                             prov.zip PCP_Zip,
+                             prov.bus_phone PCP_Phone,
+                             aut.refer_to provider,
+                             concat(concat(prov2.lname, ' '), prov2.fname) Provider_Name,
+                             prov2.address1 prov_address,
+                             prov2.city prov_city,
+                             prov2.zip prov_zip,
+                             prov2.bus_phone prov_phone,
+                             prov2.spec_cd1 prov_specialty,
+                             aut.refer_dt request_dt,
+                             aut.enter_dt,
+                             aut.case_status STATUS,
+                             aut.expire_dt EXP_DT,
+                             aut.decision_dt
+             
+               from careware.authorizations aut
+             
+               left join careware.auth_procedures aut_proc on aut.auth_no =
+                                                              aut_proc.auth_no
+               left join careware.providers prov on aut.prov_id =
+                                                    prov.prov_id
+               left join careware.providers prov2 on aut.refer_to =
+                                                     prov2.prov_id
+               left join careware.region_codes reg on aut.region =
+                                                      reg.region_cd
+               left join careware.members member on aut.mem_no =
+                                                    member.mem_no
+               left join careware.procedure_codes proc on aut_proc.proc_cd =
+                                                          proc.proc_cd
+               left join careware.diagnosis_codes_icd10 diag on aut.diag_cd =
+                                                                diag.diag_cd
+             
+              where aut.region = '310'
+                              and aut.refer_dt between to_date('1/1/2015','mm/dd/yyyy') and to_date('12/31/2016','mm/dd/yyyy'))
+              
+              
